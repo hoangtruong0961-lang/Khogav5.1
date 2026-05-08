@@ -1,0 +1,23 @@
+            : settings.aiModel;
+
+        const generationConfig: Record<string, unknown> = {
+            temperature: settings.temperature,
+            topK: settings.topK,
+            topP: settings.topP,
+            maxOutputTokens: settings.maxOutputTokens,
+        };
+
+        // Apply Thinking Config based on mode
+        if (settings.thinkingMode === 'level') {
+--
+            : settings.aiModel;
+
+        const generationConfig: Record<string, unknown> = {
+            temperature: settings.temperature,
+            topK: settings.topK,
+            topP: settings.topP,
+            maxOutputTokens: settings.maxOutputTokens,
+        };
+
+        // Apply Thinking Config based on mode
+        if (settings.thinkingMode === 'level') {

@@ -1,0 +1,83 @@
+4-import { Menu, Shield, Zap, User, Save, BrainCircuit, Globe, Brain, Loader2, ChevronLeft, ChevronRight, ChevronDown, ChevronsDown, ChevronsUp, BookOpen, Trash2, Edit2, Check, X, Database, ToggleLeft, ToggleRight, RefreshCw, Settings, Clock, Maximize2, Minimize2, MapPin, Box, History, LogOut, Terminal, Image as ImageIcon } from 'lucide-react';
+5-import { NavigationProps, GameState, ChatMessage, AppSettings, SaveFile, WorldData, TawaPresetConfig, GameTime, Entity, ImageMetadata } from '../../../types';
+6-import { gameplayAiService } from '../../../services/ai/gameplay/service';
+7-import { dbService } from '../../../services/db/indexedDB';
+8-import Button from '../../ui/Button';
+9:import { TAWA_REGEX, extractTagContent, cleanRawText, parseChoices, applySTRegex } from '../../../utils/regex';
+10-import { DEFAULT_PRESET_CONFIG } from '../../../constants/tawa_modules'; 
+11-import TawaPresetManager from './components/TawaPresetManager';
+12-import RegexScriptsManager from './components/RegexScriptsManager';
+13-import WorldInfoSidebar from './components/WorldInfoSidebar';
+14-import ImageLibraryModal from './components/ImageLibraryModal';
+--
+166-            // Apply ONLY placement 2 (Display rendering) and 3 (World Info, handled elsewhere? no, 3 is just WI)
+167-            // Note: Placements 0 and 1 are applied permanently before saving.
+168-            const placementTargets = [2];
+169-            const isDebug = typeof window !== 'undefined' && (window as any).__TAWA_REGEX_DEBUG__ === true;
+170-            const charName = entities?.[0]?.name || 'Character';
+171:            content = applySTRegex(content, regexScripts, playerName || 'User', charName, placementTargets, isDebug);
+172-        }
+173-
+174-        // 2. Helper to highlight entities in a string
+175-        const highlightEntities = (text: string) => {
+176-            if (!entities || entities.length === 0) return text;
+--
+1362-    const isDebug = typeof window !== 'undefined' && (window as any).__TAWA_REGEX_DEBUG__ === true;
+1363-    const currentPlayerName = activeWorld.player?.name || 'User';
+1364-    const currentCharName = activeWorld.entities?.[0]?.name || 'Character';
+1365-    // Apply Format User Input regex from dynamic system
+1366-    if (dynamicRegexScripts) {
+1367:         finalUserText = applySTRegex(textToSend, dynamicRegexScripts, currentPlayerName, currentCharName, [0], isDebug);
+1368-    }
+1369-
+1370-    setLastAction(textToSend); // Giữ text nguyên bản cho input box history? Tốt hơn là giữ raw
+1371-    setLastNavigatedTurn(null);
+1372-
+--
+1545-            // Apply Format AI Output regex (Placement 1) - Permanently
+1546-            let finalRegenText = result.text;
+1547-            const isDebug = typeof window !== 'undefined' && (window as any).__TAWA_REGEX_DEBUG__ === true;
+1548-            const currentPlayerName = activeWorld.player?.name || 'User';
+1549-            if (dynamicRegexScripts) {
+1550:                finalRegenText = applySTRegex(finalRegenText, dynamicRegexScripts, currentPlayerName, 'Character', [1], isDebug);
+1551-            }
+1552-
+1553-            // updateMessageSwipes needs to handle time sync correctly
+1554-            updateMessageSwipes(msgIndex, finalRegenText, startTime);
+1555-            setIsLoading(false);
+--
+1801-          
+1802-          let finalAccumulatedText = accumulatedText;
+1803-          const isDebug = typeof window !== 'undefined' && (window as any).__TAWA_REGEX_DEBUG__ === true;
+1804-          const currentPlayerName = activeWorldRef.current?.player?.name || 'User';
+1805-          if (dynamicRegexScriptsRef.current) {
+1806:               finalAccumulatedText = applySTRegex(finalAccumulatedText, dynamicRegexScriptsRef.current, currentPlayerName, 'Character', [1], isDebug);
+1807-          }
+1808-          
+1809-          msg.choices = choicesList;
+1810-          msg.gameTime = finalTime;
+1811-          msg.incrementalSummary = incrementalSummary;
+--
+1885-    // Apply Format AI Output regex (Placement 1) - Permanently
+1886-    let finalResponseText = responseText;
+1887-    const isDebug = typeof window !== 'undefined' && (window as any).__TAWA_REGEX_DEBUG__ === true;
+1888-    const currentPlayerName = activeWorldRef.current?.player?.name || 'User';
+1889-    if (dynamicRegexScriptsRef.current) {
+1890:        finalResponseText = applySTRegex(finalResponseText, dynamicRegexScriptsRef.current, currentPlayerName, 'Character', [1], isDebug);
+1891-    }
+1892-
+1893-    const modelMsg: ChatMessage = { 
+1894-        role: 'model', 
+1895-        text: finalResponseText, 
+--
+2164-            let scriptsToRunOnEdit: any[] = [];
+2165-            if (dynamicRegexScriptsRef.current) {
+2166-                scriptsToRunOnEdit = [...dynamicRegexScriptsRef.current.filter((s: any) => s.runOnEdit)];
+2167-            }
+2168-            if (scriptsToRunOnEdit.length > 0) {
+2169:                 finalText = applySTRegex(finalText, scriptsToRunOnEdit, currentPlayerName, 'Character', [0, 1, 2, 3], isDebug);
+2170-            }
+2171-
+2172-            // Update raw text
+2173-            const msg = { ...newHistory[index] };
+2174-            msg.text = finalText;
